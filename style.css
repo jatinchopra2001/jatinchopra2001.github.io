@@ -100,17 +100,9 @@ p{ margin:0 0 1em; }
 .hero{
   position:relative;
   padding:64px 0 56px;
-  background-image: radial-gradient(var(--line) 1px, transparent 1px);
+  background-image: radial-gradient(rgba(217,222,229,.55) 1px, transparent 1px);
   background-size: 22px 22px;
   background-position: -8px -8px;
-  overflow:hidden;
-}
-.hero::after{
-  /* fade the star-field so it reads as texture, not pattern */
-  content:"";
-  position:absolute; inset:0;
-  background:linear-gradient(180deg, rgba(247,248,250,.35) 0%, var(--bg) 78%);
-  pointer-events:none;
 }
 .hero > .container{
   position:relative; z-index:1;
