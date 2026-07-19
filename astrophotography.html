@@ -9,6 +9,73 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=3">
+<style>
+  /* ---------------------------------------------------------
+     Lightbox — click-to-zoom overlay for gallery images
+     --------------------------------------------------------- */
+  .frame .plate img{ cursor: zoom-in; }
+
+  .lightbox{
+    position:fixed; inset:0; z-index:1000;
+    background:rgba(20,24,31,.92);
+    display:flex; align-items:center; justify-content:center;
+    padding:32px 20px;
+    opacity:0; visibility:hidden;
+    transition:opacity .18s ease;
+  }
+  .lightbox.open{ opacity:1; visibility:visible; }
+
+  .lightbox-inner{
+    max-width:min(980px, 92vw);
+    max-height:90vh;
+    display:flex; flex-direction:column;
+    background:var(--panel);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .lightbox-img-wrap{
+    background:#0c0e12;
+    display:flex; align-items:center; justify-content:center;
+    flex:1; min-height:0;
+  }
+  .lightbox-img-wrap img{
+    max-width:100%;
+    max-height:min(70vh, 640px);
+    width:auto; height:auto;
+    object-fit:contain;
+    cursor:zoom-out;
+  }
+  .lightbox-caption{
+    padding:18px 24px 20px;
+    border-top:1px solid var(--line);
+    overflow-y:auto;
+  }
+  .lightbox-caption h3{ font-size:1.1rem; margin-bottom:.2em; }
+  .lightbox-caption .obj-meta{
+    font-family:var(--mono); font-size:.72rem; color:var(--muted);
+    margin-bottom:.7em; letter-spacing:.02em;
+  }
+  .lightbox-caption .obj-meta span{ display:inline-block; margin-right:10px; }
+  .lightbox-caption .obj-meta b{ color:var(--ink); font-weight:600; }
+  .lightbox-caption p{ color:var(--ink); font-size:.94rem; margin:0; }
+
+  .lightbox-close{
+    position:absolute; top:18px; right:22px;
+    width:38px; height:38px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.35);
+    background:rgba(20,24,31,.55);
+    color:#fff;
+    font-size:1.3rem; line-height:1;
+    cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .lightbox-close:hover{ background:rgba(20,24,31,.85); }
+
+  @media (max-width:680px){
+    .lightbox-img-wrap img{ max-height:52vh; }
+  }
+</style>
 </head>
 <body>
 
@@ -125,6 +192,75 @@
   </div>
 </footer>
 
+<!-- Lightbox overlay -->
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lightbox-close" id="lightbox-close" aria-label="Close zoomed image">&times;</button>
+  <div class="lightbox-inner" role="dialog" aria-modal="true" aria-labelledby="lightbox-title">
+    <div class="lightbox-img-wrap">
+      <img id="lightbox-img" src="" alt="">
+    </div>
+    <div class="lightbox-caption">
+      <h3 id="lightbox-title"></h3>
+      <div class="obj-meta" id="lightbox-meta"></div>
+      <p id="lightbox-desc"></p>
+    </div>
+  </div>
+</div>
+
 <script src="js/main.js"></script>
+<script>
+(function(){
+  var lightbox = document.getElementById('lightbox');
+  var lbImg = document.getElementById('lightbox-img');
+  var lbTitle = document.getElementById('lightbox-title');
+  var lbMeta = document.getElementById('lightbox-meta');
+  var lbDesc = document.getElementById('lightbox-desc');
+  var closeBtn = document.getElementById('lightbox-close');
+
+  function openLightbox(frame){
+    var img = frame.querySelector('.plate img');
+    var title = frame.querySelector('.caption h3');
+    var meta = frame.querySelector('.caption .obj-meta');
+    var desc = frame.querySelector('.caption p');
+
+    lbImg.src = img.src;
+    lbImg.alt = img.alt;
+    lbTitle.textContent = title ? title.textContent : '';
+    lbMeta.innerHTML = meta ? meta.innerHTML : '';
+    lbDesc.textContent = desc ? desc.textContent : '';
+
+    lightbox.classList.add('open');
+    lightbox.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+    closeBtn.focus();
+  }
+
+  function closeLightbox(){
+    lightbox.classList.remove('open');
+    lightbox.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.frame').forEach(function(frame){
+    var img = frame.querySelector('.plate img');
+    if(img){
+      img.addEventListener('click', function(){ openLightbox(frame); });
+    }
+  });
+
+  closeBtn.addEventListener('click', closeLightbox);
+  lbImg.addEventListener('click', closeLightbox);
+
+  lightbox.addEventListener('click', function(e){
+    if(e.target === lightbox){ closeLightbox(); }
+  });
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && lightbox.classList.contains('open')){
+      closeLightbox();
+    }
+  });
+})();
+</script>
 </body>
 </html>
